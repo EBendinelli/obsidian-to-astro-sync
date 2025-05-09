@@ -20,7 +20,7 @@ async function getNote(fileName) {
   const frontmatter = frontMatterToObject(frontmatterText);
 
   if (!frontmatter.slug) return null;
-  if (!frontmatter.publish) return null;
+  if (!frontmatter.draft) return null;
 
   return {
     fileName,
@@ -86,8 +86,8 @@ function processNote(note) {
 
   // replace images with file:// src with relative src
   if (config.replaceFileSystemImageSrc) {
-    const fileRegex = new RegExp(`file://${config.vaultPath}`, "g");
-    note.content = note.content.replace(fileRegex, "");
+    const fileRegex = new RegExp(`${config.astroInContentImagesPath}`, "g");
+    note.content = note.content.replace(fileRegex, config.astroRelativeImagesPath);
   }
 
   return note;
@@ -100,7 +100,7 @@ function writeNote(note) {
   console.log(`Writing ${note.fileName}...`);
   const processedNote = processNote(note);
   return fsp.writeFile(
-    config.astroNotesPath + "/" + processedNote.slug + ".md",
+    config.astroNotesPath + "/" + note.fileName,
     processedNote.content
   );
 }
